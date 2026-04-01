@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
       // On initial sign-in, account is populated — copy backend data into the JWT
       if (account) {
         token.backendToken = (account as Record<string, unknown>).backendToken as string;
-        token.backendUser = (account as Record<string, unknown>).backendUser;
+        token.backendUser = (account as Record<string, unknown>).backendUser as typeof token.backendUser;
       }
       return token;
     },
