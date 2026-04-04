@@ -22,13 +22,19 @@ export const authOptions: NextAuthOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: account.id_token }),
+            signal: AbortSignal.timeout(30000),
           });
-          if (!res.ok) return false;
+          if (!res.ok) {
+            const text = await res.text().catch(() => "(unreadable)");
+            console.error("[Auth] Backend rejected token:", res.status, text);
+            return false;
+          }
           const data = await res.json();
           // Stash on account so the jwt callback can pick it up
           (account as Record<string, unknown>).backendToken = data.access_token;
           (account as Record<string, unknown>).backendUser = data.user;
-        } catch {
+        } catch (err) {
+          console.error("[Auth] Fetch to backend failed:", err);
           return false;
         }
       }
