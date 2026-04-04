@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { makeApi } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
+import { useLang } from "@/components/LangProvider";
 
 interface AudioFile {
   id: number;
@@ -25,6 +26,7 @@ export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
   const api = useMemo(() => makeApi(session?.backendToken), [session?.backendToken]);
+  const { t } = useLang();
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ export default function JobDetailPage() {
   const fetchJob = useCallback(() => {
     return api.getJob(id)
       .then(setJob)
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Failed to load job"));
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : t("job_load_error")));
   }, [id, api]);
 
   useEffect(() => {
@@ -50,13 +52,13 @@ export default function JobDetailPage() {
       await api.runPipeline(id);
       await fetchJob();
     } catch (e: unknown) {
-      setRunError(e instanceof Error ? e.message : "Pipeline failed");
+      setRunError(e instanceof Error ? e.message : t("job_run_error"));
     } finally {
       setRunning(false);
     }
   }
 
-  if (loading) return <p className="text-gray-400">Loading…</p>;
+  if (loading) return <p className="text-gray-400">{t("job_loading")}</p>;
   if (error) return (
     <div className="bg-red-500/10 border border-red-500/30 text-red-300 rounded-lg px-4 py-3 text-sm">{error}</div>
   );
@@ -70,7 +72,7 @@ export default function JobDetailPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">
-            {job.video_filename ?? "Job Detail"}
+            {job.video_filename ?? t("job_default_title")}
           </h1>
           <p className="text-gray-500 font-mono text-xs">{id}</p>
         </div>
@@ -80,11 +82,11 @@ export default function JobDetailPage() {
       {/* Info card */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 grid grid-cols-2 gap-4 text-sm">
         <div>
-          <p className="text-gray-500 mb-1">Status</p>
+          <p className="text-gray-500 mb-1">{t("job_status")}</p>
           <StatusBadge status={job.status} />
         </div>
         <div>
-          <p className="text-gray-500 mb-1">Created</p>
+          <p className="text-gray-500 mb-1">{t("job_created")}</p>
           <p className="text-gray-200">
             {job.created_at ? new Date(job.created_at).toLocaleString() : "—"}
           </p>
@@ -94,7 +96,7 @@ export default function JobDetailPage() {
       {/* Pipeline error */}
       {job.error_message && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-5 py-4">
-          <p className="text-red-400 text-xs font-semibold uppercase tracking-wide mb-1">Pipeline error</p>
+          <p className="text-red-400 text-xs font-semibold uppercase tracking-wide mb-1">{t("job_pipeline_error")}</p>
           <pre className="text-red-300 text-xs whitespace-pre-wrap break-words font-mono">
             {job.error_message}
           </pre>
@@ -108,7 +110,7 @@ export default function JobDetailPage() {
           disabled={running}
           className="self-start bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-5 py-2.5 rounded-lg transition-colors"
         >
-          {running ? "Running pipeline…" : "▶ Run Pipeline"}
+          {running ? t("job_running") : t("job_run")}
         </button>
         {runError && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-300 rounded-lg px-4 py-3 text-sm">
@@ -119,18 +121,18 @@ export default function JobDetailPage() {
 
       {/* Audio files */}
       <div>
-        <h2 className="text-lg font-semibold text-white mb-3">Output Files</h2>
+        <h2 className="text-lg font-semibold text-white mb-3">{t("job_outputs")}</h2>
         {audioFiles.length === 0 ? (
           <p className="text-gray-500 text-sm">
-            No output files yet. Run the pipeline to generate audio.
+            {t("job_no_outputs")}
           </p>
         ) : (
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-800 text-gray-400 text-left">
-                  <th className="px-5 py-3 font-medium">File</th>
-                  <th className="px-5 py-3 font-medium">Type</th>
+                  <th className="px-5 py-3 font-medium">{t("job_col_file")}</th>
+                  <th className="px-5 py-3 font-medium">{t("job_col_type")}</th>
                   <th className="px-5 py-3 font-medium"></th>
                 </tr>
               </thead>
@@ -145,7 +147,7 @@ export default function JobDetailPage() {
                         download
                         className="text-indigo-400 hover:text-indigo-300 hover:underline"
                       >
-                        Download ↓
+                        {t("job_download")}
                       </a>
                     </td>
                   </tr>

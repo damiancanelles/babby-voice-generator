@@ -1,12 +1,28 @@
-const styles: Record<string, { bg: string; color: string }> = {
+"use client";
+
+import { useLang } from "@/components/LangProvider";
+import type { TranslationKey } from "@/lib/i18n";
+
+const styleMap: Record<string, { bg: string; color: string }> = {
   pending:    { bg: "#FEF9C3", color: "#CA8A04" },
   processing: { bg: "#DBEAFE", color: "#2563EB" },
   completed:  { bg: "#DCFCE7", color: "#16A34A" },
   failed:     { bg: "#FEE2E2", color: "#DC2626" },
 };
 
+const labelKey: Record<string, TranslationKey> = {
+  pending:    "status_pending",
+  processing: "status_processing",
+  completed:  "status_completed",
+  failed:     "status_failed",
+};
+
 export default function StatusBadge({ status }: { status: string }) {
-  const s = styles[status?.toLowerCase()] ?? { bg: "#F3F4F6", color: "#6B7280" };
+  const { t } = useLang();
+  const key = status?.toLowerCase();
+  const s = styleMap[key] ?? { bg: "#F3F4F6", color: "#6B7280" };
+  const label = labelKey[key] ? t(labelKey[key]) : status;
+
   return (
     <span
       style={{
@@ -23,7 +39,7 @@ export default function StatusBadge({ status }: { status: string }) {
       }}
     >
       <span>●</span>
-      {status}
+      {label}
     </span>
   );
 }

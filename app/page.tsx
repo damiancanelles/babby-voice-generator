@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { makeApi } from "@/lib/api";
 import AudioRecorder from "@/components/AudioRecorder";
+import { useLang } from "@/components/LangProvider";
 
 const AUDIO_EXTENSIONS = new Set([".wav", ".mp3", ".m4a", ".aac", ".flac", ".ogg", ".wma"]);
 
@@ -18,6 +19,7 @@ export default function HomePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const api = useMemo(() => makeApi(session?.backendToken), [session?.backendToken]);
+  const { t } = useLang();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -34,7 +36,7 @@ export default function HomePage() {
       const job = await api.uploadJob(file, jobName || undefined);
       router.push(`/jobs/${job.id}`);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(e instanceof Error ? e.message : t("home_upload_error"));
       setUploading(false);
       setFileKind(null);
     }
@@ -70,7 +72,7 @@ export default function HomePage() {
             borderRadius: 100,
           }}
         >
-          ✨ Gender Reveal Voice Generator
+          {t("home_badge")}
         </span>
         <h1
           style={{
@@ -80,7 +82,7 @@ export default function HomePage() {
             lineHeight: 1.15,
           }}
         >
-          Create Your Baby&apos;s Voice
+          {t("home_title")}
         </h1>
         <p
           style={{
@@ -90,8 +92,7 @@ export default function HomePage() {
             lineHeight: 1.6,
           }}
         >
-          Upload a video or audio clip, or record directly — we&apos;ll transform it into a magical
-          baby voice for your gender reveal moment.
+          {t("home_subtitle")}
         </p>
       </div>
 
@@ -104,8 +105,8 @@ export default function HomePage() {
             htmlFor="job-name"
             style={{ fontSize: 14, fontWeight: 600, color: "#5B4E6D" }}
           >
-            Recording Name{" "}
-            <span style={{ fontWeight: 400, color: "#9CA3AF" }}>(optional)</span>
+            {t("home_label_name")}{" "}
+            <span style={{ fontWeight: 400, color: "#9CA3AF" }}>{t("home_label_optional")}</span>
           </label>
           <input
             id="job-name"
@@ -113,7 +114,7 @@ export default function HomePage() {
             value={jobName}
             onChange={(e) => setJobName(e.target.value)}
             disabled={uploading}
-            placeholder="e.g. Baby Shower Recording"
+            placeholder={t("home_placeholder_name")}
             style={{
               width: "100%",
               backgroundColor: "#FAF8FF",
@@ -180,11 +181,11 @@ export default function HomePage() {
 
             <div style={{ textAlign: "center" }}>
               <p style={{ fontWeight: 600, fontSize: 15, color: "#1A0533" }}>
-                {uploading && fileKind !== null ? "Uploading…" : "Drop your video or audio here"}
+                {uploading && fileKind !== null ? t("home_uploading") : t("home_drop_title")}
               </p>
               {!(uploading && fileKind !== null) && (
                 <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>
-                  Supports MP4, MOV, MP3, WAV, M4A, AAC, FLAC
+                  {t("home_drop_formats")}
                 </p>
               )}
             </div>
@@ -202,7 +203,7 @@ export default function HomePage() {
                   pointerEvents: "none",
                 }}
               >
-                Browse Files
+                {t("home_browse")}
               </span>
             )}
 
@@ -245,9 +246,9 @@ export default function HomePage() {
               <MicIconLg />
             </div>
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontWeight: 600, fontSize: 15, color: "#1A0533" }}>Record Audio</p>
+              <p style={{ fontWeight: 600, fontSize: 15, color: "#1A0533" }}>{t("home_record_title")}</p>
               <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>
-                Capture your voice directly from the browser
+                {t("home_record_subtitle")}
               </p>
             </div>
             <AudioRecorder
@@ -273,6 +274,64 @@ export default function HomePage() {
             {error}
           </div>
         )}
+      </div>
+
+      {/* ── Tutorial ── */}
+      <div className="w-full max-w-3xl flex flex-col gap-5">
+        <h2
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#1A0533",
+            textAlign: "center",
+          }}
+        >
+          {t("tutorial_title")}
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { step: "1", icon: "⬆️", title: t("tutorial_step1_title"), desc: t("tutorial_step1_desc") },
+            { step: "2", icon: "⚙️", title: t("tutorial_step2_title"), desc: t("tutorial_step2_desc") },
+            { step: "3", icon: "⬇️", title: t("tutorial_step3_title"), desc: t("tutorial_step3_desc") },
+          ].map(({ step, icon, title, desc }) => (
+            <div
+              key={step}
+              style={{
+                backgroundColor: "#FDFAFF",
+                border: "1.5px solid #EDE0FF",
+                borderRadius: 16,
+                padding: "24px 20px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #F9A8D4, #C4B5FD)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: "#7C3AED",
+                    flexShrink: 0,
+                  }}
+                >
+                  {step}
+                </span>
+                <span style={{ fontSize: 20 }}>{icon}</span>
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#1A0533", margin: 0 }}>{title}</p>
+              <p style={{ fontSize: 13, color: "#6B5B8A", lineHeight: 1.6, margin: 0 }}>{desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLang } from "@/components/LangProvider";
 
 interface Props {
   onRecordingComplete: (file: File) => void;
@@ -21,6 +22,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
   const [seconds, setSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
+  const { t } = useLang();
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -75,7 +77,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
       setSeconds(0);
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setMicError("Microphone access was denied. Please allow microphone access in your browser settings.");
+      setMicError(t("rec_mic_error"));
     }
   }
 
@@ -128,7 +130,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
           }}
         >
           <MicIcon />
-          Start Recording
+          {t("rec_start")}
         </button>
         {micError && (
           <p style={{ color: "#DC2626", fontSize: 12, textAlign: "center", maxWidth: 260 }}>{micError}</p>
@@ -149,7 +151,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
           <span style={{ color: "#1A0533", fontFamily: "monospace", fontSize: 14, letterSpacing: "0.1em" }}>
             {formatTime(seconds)}
           </span>
-          <span style={{ color: "#9CA3AF", fontSize: 13 }}>Recording…</span>
+          <span style={{ color: "#9CA3AF", fontSize: 13 }}>{t("rec_recording")}</span>
         </div>
         <button
           onClick={stopRecording}
@@ -168,7 +170,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
           }}
         >
           <StopIcon />
-          Stop Recording
+          {t("rec_stop")}
         </button>
       </div>
     );
@@ -178,7 +180,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       <p style={{ color: "#9CA3AF", fontSize: 13 }}>
-        Recording ready · {formatTime(seconds)}
+        {t("rec_ready")} · {formatTime(seconds)}
       </p>
       {audioUrl && (
         // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -201,7 +203,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
             opacity: disabled ? 0.5 : 1,
           }}
         >
-          Use this recording
+          {t("rec_use")}
         </button>
         <button
           onClick={reset}
@@ -218,7 +220,7 @@ export default function AudioRecorder({ onRecordingComplete, disabled, recording
             opacity: disabled ? 0.5 : 1,
           }}
         >
-          Re-record
+          {t("rec_redo")}
         </button>
       </div>
     </div>

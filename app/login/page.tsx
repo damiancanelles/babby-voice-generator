@@ -3,11 +3,13 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useLang } from "@/components/LangProvider";
 
 export default function LoginPage() {
   const { status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (status === "authenticated") router.push("/");
@@ -21,7 +23,7 @@ export default function LoginPage() {
   if (status === "loading" || status === "authenticated") {
     return (
       <div style={fullPage}>
-        <span style={{ color: "#BBA8D4", fontSize: 14 }}>Loading…</span>
+        <span style={{ color: "#BBA8D4", fontSize: 14 }}>{t("login_loading")}</span>
       </div>
     );
   }
@@ -48,9 +50,9 @@ export default function LoginPage() {
               <h1 className="login-title" style={{ fontWeight: 800, color: "#1A0533", margin: 0, textAlign: "center" }}>
                 Baby Voice Generator
               </h1>
-              <span style={revealBadge}>✨ Gender Reveal Voice Studio</span>
+              <span style={revealBadge}>{t("login_badge")}</span>
               <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
-                Sign in to start creating
+                {t("login_subtitle")}
               </p>
             </div>
           </div>
@@ -80,19 +82,19 @@ export default function LoginPage() {
               }}
             >
               {loading ? (
-                <span style={{ color: "#9CA3AF", fontSize: 15 }}>Redirecting…</span>
+                <span style={{ color: "#9CA3AF", fontSize: 15 }}>{t("login_redirecting")}</span>
               ) : (
                 <>
                   <GoogleIcon />
                   <span style={{ fontSize: 15, fontWeight: 600, color: "#1A0533" }}>
-                    Continue with Google
+                    {t("login_google")}
                   </span>
                 </>
               )}
             </button>
 
             <p style={{ fontSize: 12, color: "#B0A8C0", textAlign: "center", lineHeight: 1.5, margin: 0, maxWidth: 280 }}>
-              Your data is private and only visible to you.
+              {t("login_privacy")}
             </p>
           </div>
 

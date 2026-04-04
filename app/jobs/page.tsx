@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { makeApi } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
+import { useLang } from "@/components/LangProvider";
 
 interface Job {
   id: number;
@@ -17,6 +18,7 @@ interface Job {
 export default function JobsPage() {
   const { data: session } = useSession();
   const api = useMemo(() => makeApi(session?.backendToken), [session?.backendToken]);
+  const { t } = useLang();
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function JobsPage() {
     if (!session?.backendToken) return;
     api.listJobs()
       .then(setJobs)
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Failed to load jobs"))
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : t("jobs_error")))
       .finally(() => setLoading(false));
   }, [session?.backendToken]);
 
@@ -37,10 +39,10 @@ export default function JobsPage() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: "#1A0533", lineHeight: 1.2 }}>
-            Job History
+            {t("jobs_title")}
           </h1>
           <p style={{ fontSize: 14, color: "#9CA3AF", marginTop: 4 }}>
-            Track all your voice generation jobs
+            {t("jobs_subtitle")}
           </p>
         </div>
         <Link
@@ -60,13 +62,13 @@ export default function JobsPage() {
             flexShrink: 0,
           }}
         >
-          + New Recording
+          {t("jobs_new")}
         </Link>
       </div>
 
       {/* States */}
       {loading && (
-        <p style={{ color: "#9CA3AF", fontSize: 14 }}>Loading…</p>
+        <p style={{ color: "#9CA3AF", fontSize: 14 }}>{t("jobs_loading")}</p>
       )}
       {error && (
         <div style={{ backgroundColor: "#FEE2E2", border: "1px solid #FCA5A5", color: "#DC2626", borderRadius: 12, padding: "12px 16px", fontSize: 14 }}>
@@ -75,9 +77,9 @@ export default function JobsPage() {
       )}
       {!loading && !error && jobs.length === 0 && (
         <div style={{ textAlign: "center", padding: "80px 0", color: "#9CA3AF", fontSize: 14 }}>
-          No jobs yet.{" "}
-          <Link href="/" style={{ color: "#8B5CF6" }}>Upload a file</Link>
-          {" "}to get started.
+          {t("jobs_empty")}{" "}
+          <Link href="/" style={{ color: "#8B5CF6" }}>{t("jobs_empty_link")}</Link>
+          {" "}{t("jobs_empty_suffix")}
         </div>
       )}
 
@@ -96,7 +98,7 @@ export default function JobsPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ backgroundColor: "#F8F4FF", borderBottom: "1px solid #F3EAFF" }}>
-                  {["#", "NAME", "SOURCE FILE", "STATUS", "CREATED", ""].map((h) => (
+                  {[t("jobs_col_id"), t("jobs_col_name"), t("jobs_col_file"), t("jobs_col_status"), t("jobs_col_created"), ""].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -125,7 +127,7 @@ export default function JobsPage() {
                       #{job.id}
                     </td>
                     <td style={{ padding: "16px 24px", color: "#1A0533" }}>
-                      {job.name ?? <span style={{ color: "#9CA3AF", fontStyle: "italic" }}>unnamed</span>}
+                      {job.name ?? <span style={{ color: "#9CA3AF", fontStyle: "italic" }}>{t("jobs_unnamed")}</span>}
                     </td>
                     <td style={{ padding: "16px 24px", color: "#6B7280", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {job.video_filename ?? "—"}
@@ -141,7 +143,7 @@ export default function JobsPage() {
                         href={`/jobs/${job.id}`}
                         style={{ color: "#8B5CF6", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
                       >
-                        View →
+                        {t("jobs_view")}
                       </Link>
                     </td>
                   </tr>
@@ -167,7 +169,7 @@ export default function JobsPage() {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ flex: 1, fontWeight: 600, fontSize: 14, color: "#1A0533" }}>
-                    {job.name ?? <span style={{ color: "#9CA3AF", fontStyle: "italic" }}>unnamed</span>}
+                    {job.name ?? <span style={{ color: "#9CA3AF", fontStyle: "italic" }}>{t("jobs_unnamed")}</span>}
                   </span>
                   <StatusBadge status={job.status} />
                 </div>
@@ -182,7 +184,7 @@ export default function JobsPage() {
                     href={`/jobs/${job.id}`}
                     style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#8B5CF6", fontWeight: 600, fontSize: 13, textDecoration: "none" }}
                   >
-                    View →
+                    {t("jobs_view")}
                   </Link>
                 </div>
               </div>

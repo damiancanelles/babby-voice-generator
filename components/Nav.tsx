@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useLang } from "@/components/LangProvider";
 
 export default function Nav() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { lang, setLang, t } = useLang();
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -30,11 +32,28 @@ export default function Nav() {
 
           {/* Page links */}
           <Link href="/" className={`nav-link${isActive("/") ? " nav-link--active" : ""}`}>
-            Upload
+            {t("nav_upload")}
           </Link>
           <Link href="/jobs" className={`nav-link${isActive("/jobs") ? " nav-link--active" : ""}`}>
-            Jobs
+            {t("nav_jobs")}
           </Link>
+
+          {/* Language toggle */}
+          <div className="nav-lang">
+            <button
+              onClick={() => setLang("en")}
+              className={`nav-lang-btn${lang === "en" ? " nav-lang-btn--active" : ""}`}
+            >
+              EN
+            </button>
+            <span style={{ color: "#4B2C6E" }}>|</span>
+            <button
+              onClick={() => setLang("es")}
+              className={`nav-lang-btn${lang === "es" ? " nav-lang-btn--active" : ""}`}
+            >
+              ES
+            </button>
+          </div>
 
           {/* Avatar + Sign out */}
           {user && (
@@ -55,7 +74,7 @@ export default function Nav() {
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 className="nav-signout"
               >
-                Sign out
+                {t("nav_signout")}
               </button>
             </div>
           )}
@@ -144,6 +163,31 @@ const navStyles = `
   }
   .nav-signout:hover {
     border-color: #8B5CF6;
+    color: #FFFFFF;
+  }
+
+  .nav-lang {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .nav-lang-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #BBA8D4;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .nav-lang-btn--active {
+    color: #F472B6;
+  }
+  .nav-lang-btn:hover {
     color: #FFFFFF;
   }
 
